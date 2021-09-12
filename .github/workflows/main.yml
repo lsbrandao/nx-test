@@ -42,4 +42,4 @@ jobs:
           build_configuration: production
           base_href: /bike-store/
           deploy_branch: master
-          angular_dist_build_folder: dist/bike-store
+          angular_dist_build_folder: dist/apps/bike-store
