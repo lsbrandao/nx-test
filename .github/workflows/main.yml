@@ -1,11 +1,39 @@
-name: Host Angular app in GitHub
+name: Node.js CI
+
 on:
   push:
-    branches:
-      - master
+    branches: [master]
+  pull_request:
+    branches: [master, dev/*]
+
 jobs:
-  build:
+  test:
+    if: ${{ github.event_name == 'pull_request' }}
     runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [10.x]
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+      - run: npm ci
+      - run: npm run test:prod
+      - run: npm run lint
+
+  build:
+    if: ${{ github.event_name == 'push' }}
+    needs: test
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [10.x]
+
     steps:
       - uses: actions/checkout@v2
       - name: Building and Deploying...
@@ -13,6 +41,6 @@ jobs:
         with:
           github_access_token: ${{ secrets.ACCESS_TOKEN }}
           build_configuration: production
-          base_href: /shopping-cart/
-          deploy_branch: gh-pages
-          angular_dist_build_folder: dist/shopping-cart
+          base_href: /bike-store/
+          deploy_branch: master
+          angular_dist_build_folder: dist/bike-store
